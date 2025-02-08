@@ -44,6 +44,8 @@ jobs:
       - name: Move coverage summary
         run: npm run move-coverage
 
+      - run: cd coverage && ls -la
+
       - name: Create Coverage Badge
         uses: jaywcjlove/coverage-badges-cli@main
         with:
