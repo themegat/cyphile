@@ -48,7 +48,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "mocha"
+    "test": "vscode-test"
   },
   "devDependencies": {
     "@types/cryptr": "^4.0.3",
