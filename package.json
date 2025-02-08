@@ -53,7 +53,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
-    "test:coverage": "vscode-test --label 0 --coverage --coverage-reporter json-summary --coverage-output coverage/coverage-summary && npm run move-coverage",
+    "test:coverage": "xvfb-run vscode-test --label 0 --coverage --coverage-reporter json-summary --coverage-output coverage/coverage-summary && npm run move-coverage",
     "move-coverage": "mv ./coverage/coverage-summary/coverage-summary.json ./coverage/ && rm -rf ./coverage/coverage-summary",
     "make-badges": "coverage-badges -o coverage/coverage-badge.svg"
   },
