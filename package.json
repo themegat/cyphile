@@ -2,13 +2,13 @@
   "name": "cyphile",
   "displayName": "Cyphile",
   "description": "A Visual Studio Code extension to encrypt and decrypt files",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "icon": "/assets/cyphile_icon.png",
   "author": {
     "name": "T Motsoeneng",
     "url": "https://github.com/themegat"
   },
-  "publisher": "themegat",
+  "publisher": "Mega-T",
   "repository": {
     "type": "git",
     "url": "https://github.com/themegat/cyphile"

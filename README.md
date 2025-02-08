@@ -29,8 +29,12 @@ The extension use [cryptr](https://www.npmjs.com/package/cryptr) for encryption 
 
 ## Release Notes
 
-> ### 0.0.8 - _Wordbreaker_ (05/02/2025)
+> ### 1.0.0 - _Wordbreaker_ (08/02/2025)
 >
 > Initial release.
+>
+> Features added:
+> - Encrypt a file
+> - Decrypt a file
 
 <hr/>
