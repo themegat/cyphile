@@ -25,14 +25,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: sudo apt-get install xvfb
     - run: npm run test:coverage
-    - run: npm run move-coverage
 
-    - name: Create Coverage Badge
+    - name: Create Coverage Badges
       uses: jaywcjlove/coverage-badges-cli@main
       with:
-        style: classic
+        style: flat
         source: coverage/coverage-summary.json
         output: coverage/badges.svg
         jsonPath: totals.percent_covered
