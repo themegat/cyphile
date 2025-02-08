@@ -28,10 +28,10 @@ jobs:
         cache: 'npm'
 
     - name: Run tests with coverage
-    - run: npm run test:coverage
+      run: npm run test:coverage
 
     - name: Move coverage summary
-    - run: npm run move-coverage
+      run: npm run move-coverage
 
     - name: Create Coverage Badge
       uses: jaywcjlove/coverage-badges-cli@main
