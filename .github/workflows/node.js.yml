@@ -25,7 +25,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm run test:coverage
 
     - name: Run headless test
       uses: coactions/setup-xvfb@v1
