@@ -5,47 +5,54 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1001/bus
+      SHELL: /usr/bin/bash
 
     strategy:
       matrix:
-        node-version: [ 22.x ]
+        node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js v${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+      - name: Set up Node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
 
-    - name: Install xvfb
-      run: sudo apt install xvfb 
+      - name: Install xvfb
+        run: sudo apt install xvfb
 
-    - name: Run tests with coverage
-      run: npm run test:coverage
+      - name: Run tests with coverage
+        run: npm run test:coverage
 
-    - name: Move coverage summary
-      run: npm run move-coverage
+      - name: Move coverage summary
+        run: npm run move-coverage
 
-    - name: Create Coverage Badge
-      uses: jaywcjlove/coverage-badges-cli@main
-      with:
-        style: classic
-        source: coverage/coverage-summary.json
-        output: coverage/badges.svg
-        jsonPath: totals.percent_covered
+      - name: Create Coverage Badge
+        uses: jaywcjlove/coverage-badges-cli@main
+        with:
+          style: classic
+          source: coverage/coverage-summary.json
+          output: coverage/badges.svg
+          jsonPath: totals.percent_covered
 
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
