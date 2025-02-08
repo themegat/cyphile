@@ -5,7 +5,7 @@ import assert from "assert";
 import path from "path";
 import Sinon from "sinon";
 
-let inputBoxPrompt: sinon.SinonStub;
+let inputBox: sinon.SinonStub;
 
 suite("Encrypt Test Suite", () => {
   suiteSetup(async () => {
@@ -26,14 +26,14 @@ suite("Encrypt Test Suite", () => {
   test("Cypher command works", async () => {
     await vscode.commands.executeCommand("cyphile.cypher");
 
-    assert.equal(inputBoxPrompt.calledOnce, true);
-    const promptTest = inputBoxPrompt.args[0][0];
+    assert.equal(inputBox.calledOnce, true);
+    const promptTest = inputBox.args[0][0];
     assert.equal(promptTest?.prompt, "Encryption Key/Password");
   });
 
   test("Key/password validated", async () => {
     const errorMessageDialog = sinon.stub(vscode.window, "showErrorMessage");
-    inputBoxPrompt.resolves("test");
+    inputBox.resolves("test");
 
     await vscode.commands.executeCommand("cyphile.cypher");
 
@@ -53,7 +53,7 @@ suite("Encrypt Test Suite", () => {
       "showInformationMessage"
     );
 
-    inputBoxPrompt.resolves("testKey@123");
+    inputBox.resolves("testKey@123");
 
     await vscode.commands.executeCommand("cyphile.cypher");
     assert.equal(infoMessageDialog.calledOnce, true);
@@ -64,8 +64,8 @@ suite("Encrypt Test Suite", () => {
   });
 })
   .beforeEach(() => {
-    inputBoxPrompt = sinon.stub(vscode.window, "showInputBox");
+    inputBox = sinon.stub(vscode.window, "showInputBox");
   })
   .afterEach(() => {
-    inputBoxPrompt.restore();
+    inputBox.restore();
   });
