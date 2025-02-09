@@ -55,6 +55,10 @@ jobs:
       - name: Start Xvfb
         run: sudo Xvfb :1 -screen 0 1024x768x24 &
 
+      - name: Print D-Bus Address
+        run: |
+          echo "D-Bus Address: $DBUS_SYSTEM_BUS_ADDRESS"
+
       - name: Run tests with coverage (headless mode)
         run: sudo xvfb-run -e /dev/stdout npm run test:coverage
 
