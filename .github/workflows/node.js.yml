@@ -20,7 +20,7 @@ jobs:
         shell: bash
 
     env:
-      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1001/bus
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
       DISPLAY: 1
       SHELL: /usr/bin/bash
 
@@ -56,7 +56,7 @@ jobs:
         run: sudo Xvfb :1 -screen 0 1024x768x24 &
 
       - name: Run tests with coverage (headless mode)
-        run: sudo xvfb-run --server-num=1001 -e /dev/stdout npm run test:coverage
+        run: sudo xvfb-run -e /dev/stdout npm run test:coverage
 
       - name: Move coverage summary
         run: npm run move-coverage
