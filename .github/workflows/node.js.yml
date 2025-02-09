@@ -51,8 +51,11 @@ jobs:
         run: sudo service dbus status
 
       - name: Verify D-Bus Socket Path
-        run: ls /var/run/dbus/system_bus_socket
+        run: sudo dbus-daemon --config-file=/usr/share/dbus-1/system.conf --print-address
       
+      - name: Debug Environment Variables
+        run: printenv
+
       - name: Start Xvfb
         run: sudo Xvfb :1 -screen 0 1024x768x24 &
 
