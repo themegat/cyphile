@@ -47,7 +47,7 @@ jobs:
         run: sudo service dbus start
       
       - name: Start Xvfb
-        run: sudo Xvfb :1 -screen 0 1024x768x24 
+        run: sudo Xvfb :1 -screen 0 1024x768x24 &
 
       - name: Run tests with coverage (headless mode)
         run: sudo xvfb-run --server-num=1001 -e /dev/stdout npm run test:coverage
