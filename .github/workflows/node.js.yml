@@ -45,6 +45,12 @@ jobs:
 
       - name: Start D-Bus
         run: sudo service dbus start
+
+      - name: Check D-Bus Service Status
+        run: sudo service dbus status
+
+      - name: Verify D-Bus Socket Path
+        run: ls /var/run/dbus/system_bus_socket
       
       - name: Start Xvfb
         run: sudo Xvfb :1 -screen 0 1024x768x24 &
