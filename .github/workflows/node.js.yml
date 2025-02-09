@@ -43,7 +43,7 @@ jobs:
         run: sudo apt install xvfb
 
       - name: Run tests with coverage (headless mode)
-        run: xvfb-run -e /dev/stdout npm run test:coverage
+        run: sudo xvfb-run --auto-servernum --server-num=1 -e /dev/stdout npm run test:coverage
 
       - name: Move coverage summary
         run: npm run move-coverage
