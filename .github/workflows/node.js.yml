@@ -40,14 +40,14 @@ jobs:
           cache: "npm"
       - run: npm ci
 
-      - name: Install D-Bus
-        run: sudo apt-get install -y dbus-x11
+      - name: Install D-Bus and Xvfb
+        run: sudo apt-get install -y dbus-x11 xvfb
 
       - name: Start D-Bus
         run: sudo service dbus start
-
-      - name: Install xvfb
-        run: sudo apt install xvfb
+      
+      - name: Start Xvfb
+        run: sudo Xvfb :1 -screen 0 1024x768x24 
 
       - name: Run tests with coverage (headless mode)
         run: sudo xvfb-run --server-num=1001 -e /dev/stdout npm run test:coverage
