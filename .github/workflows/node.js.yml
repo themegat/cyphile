@@ -21,6 +21,7 @@ jobs:
 
     env:
       DBUS_SESSION_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
+      DBUS_SYSTEM_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
       DISPLAY: 1
       SHELL: /usr/bin/bash
 
