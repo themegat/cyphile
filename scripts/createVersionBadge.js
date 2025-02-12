@@ -8,14 +8,14 @@ const generateSvg = (value) => {
     let valueXPos = 94;
 
     return `
-<svg width="135" height="25" xmlns="http://www.w3.org/2000/svg">
+<svg width="140" height="25" xmlns="http://www.w3.org/2000/svg">
  <g>
   <title>Layer 1</title>
   <rect x="0" stroke="#000" rx="5" id="svg_1" height="25" width="70" y="0" stroke-width="0" fill="#5b5050"/>
-  <rect rx="5" id="svg_4" height="25" width="65" y="0" x="70" stroke-width="0" stroke="#000" fill="${bgColor}"/>
+  <rect rx="5" id="svg_4" height="25" width="70" y="0" x="70" stroke-width="0" stroke="#000" fill="${bgColor}"/>
   <rect y="0" stroke="#000" id="svg_2" height="25" width="20" x="65" stroke-width="0" fill="#5b5050"/>
   <text font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Gluten'" font-size="20" id="svg_6" y="16.5" x="9" stroke-width="1.5" stroke="#fff" fill="#ffffff">version</text>
-  <text font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Gluten'" font-size="20" id="svg_8" y="17.64286" x="${valueXPos}" stroke-width="1.5" stroke="${textColor}" fill="${textColor}">${value}</text>
+  <text font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Gluten'" font-size="19" id="svg_8" y="17.64286" x="${valueXPos}" stroke-width="1.5" stroke="${textColor}" fill="${textColor}">${value}</text>
  </g>
 </svg>
 `;
@@ -62,7 +62,7 @@ const loadCVersionFromPackageJson = (path) => {
             }
 
             fs.writeFileSync(path.join(args[1], 'version_badge.png'), buffer);
-            console.log('Badge created successfully!');
+            console.log('Version badge created successfully!');
         });
     } catch (e) {
         console.error(e);
