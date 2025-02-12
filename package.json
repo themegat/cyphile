@@ -55,7 +55,9 @@
     "test": "vscode-test",
     "test:coverage": "vscode-test --label 0 --coverage --coverage-reporter json-summary --coverage-output coverage/coverage-summary",
     "move-coverage": "mv ./coverage/coverage-summary/coverage-summary.json ./coverage/ && rm -rf ./coverage/coverage-summary",
-    "make-badges": "coverage-badges -o coverage/coverage-badge.svg"
+    "make-badge:coverage": "node ./scripts/createCoverageBadge.js coverage/coverage-summary.json ./badges/",
+    "make-badge:version": "node ./scripts/createVersionBadge.js package.json ./badges/",
+    "make-badges": "npm run make-badge:version && npm run make-badge:coverage"
   },
   "devDependencies": {
     "@types/cryptr": "^4.0.3",
@@ -67,11 +69,10 @@
     "@typescript-eslint/parser": "^8.17.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
-    "coverage-badges-cli": "^2.1.0",
     "eslint": "^9.16.0",
     "mocha": "^11.1.0",
-    "node-coverage-badges": "^1.2.11",
     "sinon": "^19.0.2",
+    "svg2img": "^1.0.0-beta.2",
     "typescript": "^5.7.2"
   },
   "dependencies": {
