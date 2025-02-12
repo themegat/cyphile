@@ -20,8 +20,6 @@ jobs:
         shell: bash
 
     env:
-      DBUS_SESSION_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
-      DBUS_SYSTEM_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
       DISPLAY: 1
       SHELL: /usr/bin/bash
 
@@ -43,11 +41,12 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Install Linux dependencies
-        run: |
-          sudo add-apt-repository universe
-          sudo apt-get update
-          sudo apt-get install -y libatk1.0-0 libgtk-3-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libpango-1.0-0 libnss3 libxshmfence1 libgbm-dev libasound2
+    #### For Local testing
+    #   - name: Install Linux dependencies
+    #     run: |
+    #       sudo add-apt-repository universe
+    #       sudo apt-get update
+    #       sudo apt-get install -y libatk1.0-0 libgtk-3-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libpango-1.0-0 libnss3 libxshmfence1 libgbm-dev libasound2
 
       - name: Set Linux environment variables
         run: |
