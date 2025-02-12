@@ -1,4 +1,6 @@
 # Cyphile
+![version](https://github.com/themegat/cyphile/raw/gh-pages/version_badge.png)
+![coverage](https://github.com/themegat/cyphile/raw/gh-pages/coverage_badge.png)
 
 Cyphile is an extention that enrypts and decrypts files.
 
