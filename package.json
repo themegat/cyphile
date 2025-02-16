@@ -57,7 +57,9 @@
     "move-coverage": "mv ./coverage/coverage-summary/coverage-summary.json ./coverage/ && rm -rf ./coverage/coverage-summary",
     "make-badge:coverage": "node ./scripts/createCoverageBadge.js coverage/coverage-summary.json ./badges/",
     "make-badge:version": "node ./scripts/createVersionBadge.js package.json ./badges/",
-    "make-badges": "npm run make-badge:version && npm run make-badge:coverage"
+    "make-badges": "npm run make-badge:version && npm run make-badge:coverage",
+    "package": "vsce package",
+    "publish": "npm run package && vsce publish"
   },
   "devDependencies": {
     "@types/cryptr": "^4.0.3",
@@ -69,6 +71,7 @@
     "@typescript-eslint/parser": "^8.17.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.2",
     "eslint": "^9.16.0",
     "mocha": "^11.1.0",
     "sinon": "^19.0.2",

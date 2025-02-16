@@ -1,5 +1,5 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+# This workflow will do a clean installation of node dependencies,
+# cache/restore them, compile the source code, run tests and then generate and publish badges
 
 name: Test Cyphile CI
 
@@ -12,7 +12,7 @@ permissions:
   pages: write
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     defaults:
@@ -41,12 +41,12 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-    #### For Local testing
-    #   - name: Install Linux dependencies
-    #     run: |
-    #       sudo add-apt-repository universe
-    #       sudo apt-get update
-    #       sudo apt-get install -y libatk1.0-0 libgtk-3-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libpango-1.0-0 libnss3 libxshmfence1 libgbm-dev libasound2
+      # ### For Local testing
+      # - name: Install Linux dependencies
+      #   run: |
+      #     sudo add-apt-repository universe
+      #     sudo apt-get update
+      #     sudo apt-get install -y libatk1.0-0 libgtk-3-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libpango-1.0-0 libnss3 libxshmfence1 libgbm-dev libasound2
 
       - name: Set Linux environment variables
         run: |
