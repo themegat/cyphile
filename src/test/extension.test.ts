@@ -1,8 +1,6 @@
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from "vscode";
-// import * as myExtension from '../../extension';
-import sinon from "sinon";
 import Sinon from "sinon";
 import path from "path";
 import * as assert from "assert";
@@ -10,7 +8,7 @@ import { clearDirectory, createFile } from "../util/system-file-helpers";
 
 let fileDialog: Sinon.SinonStub;
 let inputBox: Sinon.SinonStub;
-let errorMessageDialog: sinon.SinonStub;
+let errorMessageDialog: Sinon.SinonStub;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -45,7 +43,7 @@ suite("Extension Test Suite", () => {
     });
 
     suiteTeardown(() => {
-      sinon.reset();
+      Sinon.reset();
     });
 
     test("Cypher command works", async () => {
@@ -53,11 +51,12 @@ suite("Extension Test Suite", () => {
 
       assert.equal(inputBox.calledOnce, true);
       const promptTest = inputBox.args[0][0];
-      assert.equal(promptTest?.prompt, "Encryption Key/Password");
+      assert.equal(promptTest?.prompt, "*Required - Provide a secret to encrypt with.");
     });
 
     test("Key/password validated", async () => {
-      inputBox.resolves("test");
+      inputBox.onCall(0).resolves("test");
+      inputBox.onCall(1).resolves();
 
       await vscode.commands.executeCommand("cyphile.cypher");
 
@@ -65,7 +64,7 @@ suite("Extension Test Suite", () => {
       const message = errorMessageDialog.args[0][0];
       assert.equal(
         message,
-        "Invalid Key/Password: Minimum length is 5 characters"
+        "The secret should be at least 5 characters long and not blank."
       );
 
       errorMessageDialog.restore();
@@ -77,7 +76,8 @@ suite("Extension Test Suite", () => {
         "showInformationMessage"
       );
 
-      inputBox.resolves("testKey@123");
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
 
       await vscode.commands.executeCommand("cyphile.cypher");
       assert.equal(infoMessageDialog.calledOnce, true);
@@ -90,7 +90,7 @@ suite("Extension Test Suite", () => {
 
   suite("Decrypt Test Suite", () => {
     suiteSetup(async () => {
-      sinon.reset();
+      Sinon.reset();
       const file = path.join(
         __dirname,
         "..",
@@ -106,7 +106,7 @@ suite("Extension Test Suite", () => {
     });
 
     suiteTeardown(() => {
-      sinon.reset();
+      Sinon.reset();
     });
 
     test("Decypher command works", async () => {
@@ -114,7 +114,7 @@ suite("Extension Test Suite", () => {
 
       assert.equal(inputBox.calledOnce, true);
       const promptTest = inputBox.args[0][0];
-      assert.equal(promptTest?.prompt, "Encryption Key/Password");
+      assert.equal(promptTest?.prompt, "*Required - Provide a secret to decrypt with.");
     });
 
     test("Key/password validated", async () => {
@@ -126,14 +126,15 @@ suite("Extension Test Suite", () => {
       const message = errorMessageDialog.args[0][0];
       assert.equal(
         message,
-        "Invalid Key/Password: Minimum length is 5 characters"
+        "The secret should be at least 5 characters long and not blank."
       );
 
       errorMessageDialog.restore();
     });
 
     test("Wrong key/password entered", async () => {
-      inputBox.resolves("wrongkey");
+      inputBox.onCall(0).resolves("wrongkey");
+      inputBox.onCall(1).resolves();
 
       await vscode.commands.executeCommand("cyphile.decypher");
 
@@ -145,12 +146,13 @@ suite("Extension Test Suite", () => {
     });
 
     test("File decrypted successfully", async () => {
-      const infoMessageDialog = sinon.stub(
+      const infoMessageDialog = Sinon.stub(
         vscode.window,
         "showInformationMessage"
       );
 
-      inputBox.resolves("testKey@123");
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
 
       await vscode.commands.executeCommand("cyphile.decypher");
       assert.equal(infoMessageDialog.calledOnce, true);
@@ -175,7 +177,7 @@ suite("Extension Test Suite", () => {
 
     suiteTeardown(() => {
       clearDirectory(testAssetDir);
-      sinon.reset();
+      Sinon.reset();
     });
 
     const generateFiles = () => {
@@ -203,7 +205,8 @@ suite("Extension Test Suite", () => {
 
     test("Key/password validated", async () => {
       generateFiles();
-      inputBox.resolves("t21");
+      inputBox.onCall(0).resolves("t21");
+      inputBox.onCall(1).resolves("t21");
       fileDialog.resolves([{ fsPath: testAssetDir }]);
       await vscode.commands.executeCommand("cyphile.cypher-directory");
 
@@ -215,21 +218,22 @@ suite("Extension Test Suite", () => {
       const message = errorMessageDialog.args[0][0];
       assert.equal(
         message,
-        "Invalid Key/Password: Minimum length is 5 characters"
+        "The secret should be at least 5 characters long and not blank."
       );
     }).timeout(TEST_TIMEOUT);
 
     test("Confirm dialog displayed", async () => {
       generateFiles();
 
-      const infoMessage = sinon.stub(vscode.window, "showInformationMessage");
+      const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
       fileDialog.resolves([{ fsPath: testAssetDir }]);
-      inputBox.resolves("testKey@123");
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
       infoMessage.resolves("No" as any);
       await vscode.commands.executeCommand("cyphile.cypher-directory");
 
       assert.equal(fileDialog.calledOnce, true);
-      assert.equal(inputBox.calledOnce, true);
+      assert.equal(inputBox.calledTwice, true);
       assert.equal(infoMessage.calledOnce, true);
 
       const message = infoMessage.args[0][0];
@@ -241,14 +245,15 @@ suite("Extension Test Suite", () => {
     test("File encrypted successfully", async () => {
       generateFiles();
 
-      const infoMessage = sinon.stub(vscode.window, "showInformationMessage");
+      const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
       infoMessage.resolves("Yes" as any);
       fileDialog.resolves([{ fsPath: testAssetDir }]);
-      inputBox.resolves("testKey@123");
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
       await vscode.commands.executeCommand("cyphile.cypher-directory");
 
       assert.equal(fileDialog.calledOnce, true);
-      assert.equal(inputBox.calledOnce, true);
+      assert.equal(inputBox.calledTwice, true);
 
       await delay(DELAY);
       assert.equal(infoMessage.calledTwice, true);
@@ -275,7 +280,7 @@ suite("Extension Test Suite", () => {
 
     suiteTeardown(() => {
       clearDirectory(testAssetDir);
-      sinon.reset();
+      Sinon.reset();
     });
 
     const generateFiles = () => {
@@ -309,7 +314,8 @@ suite("Extension Test Suite", () => {
     test("Key/password validated", async () => {
       generateFiles();
       fileDialog.resolves([{ fsPath: testAssetDir }]);
-      inputBox.resolves("test");
+      inputBox.onCall(0).resolves("test");
+      inputBox.onCall(1).resolves();
       await vscode.commands.executeCommand("cyphile.decypher-directory");
 
       assert.equal(fileDialog.calledOnce, true);
@@ -320,21 +326,22 @@ suite("Extension Test Suite", () => {
       const message = errorMessageDialog.args[0][0];
       assert.equal(
         message,
-        "Invalid Key/Password: Minimum length is 5 characters"
+        "The secret should be at least 5 characters long and not blank."
       );
     }).timeout(TEST_TIMEOUT);
 
     test("Confirm dialog displayed", async () => {
       generateFiles();
 
-      const infoMessage = sinon.stub(vscode.window, "showInformationMessage");
+      const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
       fileDialog.resolves([{ fsPath: testAssetDir }]);
-      inputBox.resolves("testKey@123");
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
       infoMessage.resolves("No" as any);
       await vscode.commands.executeCommand("cyphile.decypher-directory");
 
       assert.equal(fileDialog.calledOnce, true);
-      assert.equal(inputBox.calledOnce, true);
+      assert.equal(inputBox.calledTwice, true);
       assert.equal(infoMessage.calledOnce, true);
 
       const message = infoMessage.args[0][0];
@@ -346,14 +353,15 @@ suite("Extension Test Suite", () => {
     test("File decrypted successfully", async () => {
       generateFiles();
 
-      const infoMessage = sinon.stub(vscode.window, "showInformationMessage");
+      const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
       infoMessage.resolves("Yes" as any);
       fileDialog.resolves([{ fsPath: testAssetDir }]);
-      inputBox.resolves("testKey@123");
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
       await vscode.commands.executeCommand("cyphile.decypher-directory");
 
       assert.equal(fileDialog.calledOnce, true);
-      assert.equal(inputBox.calledOnce, true);
+      assert.equal(inputBox.calledTwice, true);
 
       await delay(DELAY);
       assert.equal(infoMessage.calledTwice, true);
@@ -369,10 +377,11 @@ suite("Extension Test Suite", () => {
   .beforeEach(() => {
     fileDialog = Sinon.stub(vscode.window, "showOpenDialog");
     inputBox = Sinon.stub(vscode.window, "showInputBox");
-    errorMessageDialog = sinon.stub(vscode.window, "showErrorMessage");
+    errorMessageDialog = Sinon.stub(vscode.window, "showErrorMessage");
   })
   .afterEach(() => {
     fileDialog.restore();
     inputBox.restore();
     errorMessageDialog.restore();
+    Sinon.restore();
   });
