@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import getSecurityKey from '../util/get-security-key';
 import Cryptr from 'cryptr';
+import { getCyProps } from '../util/get_cy_props';
+import { CyType } from '../util/enums';
 
 const encryptFile = () => {
     const activeEditor = vscode.window.activeTextEditor;
@@ -8,9 +9,12 @@ const encryptFile = () => {
     if (activeEditor) {
         const message = "Current file Encrypted";
         const content = activeEditor.document.getText();
-        getSecurityKey().then((password) => {
-            if (password) {
-                const encryptor = new Cryptr(password);
+
+        getCyProps(CyType.ENCRYPT).then((props) => {
+            if (props) {
+                const encryptor = new Cryptr(props.key, {
+                    saltLength: props.salt
+                });
 
                 const cyContent = encryptor.encrypt(content);
                 activeEditor.edit(editBuilder => {
@@ -21,7 +25,7 @@ const encryptFile = () => {
             }
         }).catch((error) => {
             vscode.window.showErrorMessage(error.message);
-        });
+        })
     }
 };
 

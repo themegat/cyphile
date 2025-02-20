@@ -5,12 +5,15 @@ import {
   readFileContent,
   writeFileContent,
 } from "../util/system-file-helpers";
-import getSecurityKey from "../util/get-security-key";
 import Cryptr from "cryptr";
 import { confrimPrompt } from "../util/prompt";
+import { getCyProps } from "../util/get_cy_props";
+import { CyType } from "../util/enums";
 
-const confrimAndEncrypt = (files: CyFile[], password: string) => {
-  const encryptor = new Cryptr(password);
+const confrimAndEncrypt = (files: CyFile[], password: string, salt?: number) => {
+  const encryptor = new Cryptr(password, {
+    saltLength: salt,
+  });
 
   confrimPrompt(`Are you sure you want to encrypt ${files.length} files?`).then(
     (response) => {
@@ -38,15 +41,13 @@ const encryptDirectory = () => {
     .then((dirs) => {
       if (dirs) {
         const files = getFiles(dirs[0].fsPath);
-        getSecurityKey()
-          .then((password) => {
-            if (password) {
-              confrimAndEncrypt(files, password);
-            }
-          })
-          .catch((error) => {
-            vscode.window.showErrorMessage(error.message);
-          });
+        getCyProps(CyType.ENCRYPT_DIR).then((props) => {
+          if (props) {
+            confrimAndEncrypt(files, props.key, props.salt);
+          }
+        }).catch((error) => {
+          vscode.window.showErrorMessage(error.message);
+        });
       }
     });
 };

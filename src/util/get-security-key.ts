@@ -1,13 +1,22 @@
 import * as vscode from 'vscode';
+import { CyType } from './enums';
 
-const getSecurityKey = (): Promise<string | undefined> => {
+const getSecurityKey = (cyType: CyType): Promise<string> => {
+    let promptText = "*Required - Provide a secret to {} with.";
+    if (cyType === CyType.ENCRYPT || cyType === CyType.ENCRYPT_DIR) {
+        promptText = promptText.replace('{}', 'encrypt');
+    } else {
+        promptText = promptText.replace('{}', 'decrypt');
+    }
+
     return new Promise((resolve, reject) => {
-        vscode.window.showInputBox({ prompt: 'Encryption Key/Password' }).then(key => {
+        vscode.window.showInputBox({ prompt: promptText }).then(key => {
             if (key) {
-                if (key.length > 0 && key.length < 5) {
-                    reject(new Error('Invalid Key/Password: Minimum length is 5 characters',));
+                const parsedKey = key.trim();
+                if (parsedKey.length === 0 || (parsedKey.length > 0 && parsedKey.length < 5)) {
+                    reject(new Error('The secret should be at least 5 characters long and not blank.'));
                 } else {
-                    resolve(key);
+                    resolve(parsedKey);
                 }
             }
         });
