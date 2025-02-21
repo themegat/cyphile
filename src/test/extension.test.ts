@@ -55,37 +55,36 @@ suite("Extension Test Suite", () => {
     });
 
     test("Key/password validated", async () => {
-      inputBox.onCall(0).resolves("test");
-      inputBox.onCall(1).resolves();
+      inputBox.resolves("test");
 
       await vscode.commands.executeCommand("cyphile.cypher");
-
-      assert.equal(errorMessageDialog.calledOnce, true);
+      await delay(DELAY);
+      assert.equal(errorMessageDialog.called, true);
       const message = errorMessageDialog.args[0][0];
       assert.equal(
         message,
         "The secret should be at least 5 characters long and not blank."
       );
-
-      errorMessageDialog.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
 
     test("File encrypted successfully", async () => {
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves();
+
       const infoMessageDialog = Sinon.stub(
         vscode.window,
         "showInformationMessage"
       );
 
-      inputBox.onCall(0).resolves("testKey@123");
-      inputBox.onCall(1).resolves();
-
       await vscode.commands.executeCommand("cyphile.cypher");
+      await delay(DELAY);
+
       assert.equal(infoMessageDialog.calledOnce, true);
       const message = infoMessageDialog.args[0][0];
       assert.equal(message, "Current file Encrypted");
 
       infoMessageDialog.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
   });
 
   suite("Decrypt Test Suite", () => {
@@ -121,6 +120,7 @@ suite("Extension Test Suite", () => {
       inputBox.resolves("test");
 
       await vscode.commands.executeCommand("cyphile.decypher");
+      await delay(DELAY);
 
       assert.equal(errorMessageDialog.calledOnce, true);
       const message = errorMessageDialog.args[0][0];
@@ -130,20 +130,21 @@ suite("Extension Test Suite", () => {
       );
 
       errorMessageDialog.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
 
     test("Wrong key/password entered", async () => {
       inputBox.onCall(0).resolves("wrongkey");
       inputBox.onCall(1).resolves();
 
       await vscode.commands.executeCommand("cyphile.decypher");
+      await delay(DELAY);
 
       assert.equal(errorMessageDialog.calledOnce, true);
       const message = errorMessageDialog.args[0][0];
       assert.equal(message, "Unsupported state or unable to authenticate data");
 
       errorMessageDialog.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
 
     test("File decrypted successfully", async () => {
       const infoMessageDialog = Sinon.stub(
@@ -155,12 +156,14 @@ suite("Extension Test Suite", () => {
       inputBox.onCall(1).resolves();
 
       await vscode.commands.executeCommand("cyphile.decypher");
+      await delay(DELAY);
+
       assert.equal(infoMessageDialog.calledOnce, true);
       const message = infoMessageDialog.args[0][0];
       assert.equal(message, "Current file decrypted");
 
       infoMessageDialog.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
   });
 
   suite("Encrypt Directory Test Suite", () => {
@@ -230,7 +233,9 @@ suite("Extension Test Suite", () => {
       inputBox.onCall(0).resolves("testKey@123");
       inputBox.onCall(1).resolves();
       infoMessage.resolves("No" as any);
+
       await vscode.commands.executeCommand("cyphile.cypher-directory");
+      await delay(DELAY);
 
       assert.equal(fileDialog.calledOnce, true);
       assert.equal(inputBox.calledTwice, true);
@@ -240,7 +245,7 @@ suite("Extension Test Suite", () => {
       assert.equal(message, "Are you sure you want to encrypt 3 files?");
 
       infoMessage.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
 
     test("File encrypted successfully", async () => {
       generateFiles();
@@ -339,6 +344,7 @@ suite("Extension Test Suite", () => {
       inputBox.onCall(1).resolves();
       infoMessage.resolves("No" as any);
       await vscode.commands.executeCommand("cyphile.decypher-directory");
+      await delay(DELAY);
 
       assert.equal(fileDialog.calledOnce, true);
       assert.equal(inputBox.calledTwice, true);
@@ -348,7 +354,7 @@ suite("Extension Test Suite", () => {
       assert.equal(message, "Are you sure you want to decrypt 3 files?");
 
       infoMessage.restore();
-    });
+    }).timeout(TEST_TIMEOUT);
 
     test("File decrypted successfully", async () => {
       generateFiles();

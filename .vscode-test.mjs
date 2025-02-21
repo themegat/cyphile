@@ -5,4 +5,5 @@ export default defineConfig({
   coverage: {
     reporter: ["lcov", "json-summary"]
   },
+  launchArgs: ["--disable-extensions"],
 });
