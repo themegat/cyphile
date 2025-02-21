@@ -15,38 +15,49 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const DELAY = 1000;
 const TEST_TIMEOUT = 3000;
 
-suite("Extension Test Suite", () => {
+suite("Cyphile Test Suite", () => {
   vscode.window.showInformationMessage("Start all tests.");
 
-  suite("Sample test", () => {
-    test("Sample test", () => {
+  suite("Verify - Test Suite", () => {
+    test("Verify - Sample test", () => {
       assert.strictEqual(-1, [1, 2, 3].indexOf(5));
       assert.strictEqual(-1, [1, 2, 3].indexOf(0));
     });
   });
 
-  suite("Encrypt Test Suite", () => {
+  suite("Encrypt - Test Suite", () => {
+    const testAssetDir = path.join(
+      __dirname,
+      "..",
+      "..",
+      "src",
+      "test",
+      "assets",
+      "files",
+      "encrypt"
+    );
+
     suiteSetup(async () => {
-      const file = path.join(
-        __dirname,
-        "..",
-        "..",
-        "src",
-        "test",
-        "assets",
-        "files",
-        "test_encrypt_file.txt"
+      const filename = "test_encrypt_file.txt";
+      const filePath = path.join(
+        testAssetDir,
+        filename
       );
-      const doc = await vscode.workspace.openTextDocument(file);
+
+      createFile(filename, "Sample test text file", testAssetDir);
+
+      const doc = await vscode.workspace.openTextDocument(filePath);
 
       await vscode.window.showTextDocument(doc);
     });
 
-    suiteTeardown(() => {
+    suiteTeardown(async () => {
       Sinon.reset();
+      clearDirectory(testAssetDir);
+      await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     });
 
-    test("Cypher command works", async () => {
+    test("Encrypt - Cypher command works", async () => {
       await vscode.commands.executeCommand("cyphile.cypher");
 
       assert.equal(inputBox.calledOnce, true);
@@ -54,12 +65,12 @@ suite("Extension Test Suite", () => {
       assert.equal(promptTest?.prompt, "*Required - Provide a secret to encrypt with.");
     });
 
-    test("Key/password validated", async () => {
+    test("Encrypt - Secret validated", async () => {
       inputBox.resolves("test");
 
       await vscode.commands.executeCommand("cyphile.cypher");
       await delay(DELAY);
-      assert.equal(errorMessageDialog.called, true);
+      assert.equal(errorMessageDialog.calledOnce, true);
       const message = errorMessageDialog.args[0][0];
       assert.equal(
         message,
@@ -67,7 +78,7 @@ suite("Extension Test Suite", () => {
       );
     }).timeout(TEST_TIMEOUT);
 
-    test("File encrypted successfully", async () => {
+    test("Encrypt - File encrypted successfully", async () => {
       inputBox.onCall(0).resolves("testKey@123");
       inputBox.onCall(1).resolves();
 
@@ -85,38 +96,96 @@ suite("Extension Test Suite", () => {
 
       infoMessageDialog.restore();
     }).timeout(TEST_TIMEOUT);
+
+    test("Encrypt - Salt validated", async () => {
+      inputBox.onCall(0).resolves("test@123");
+      inputBox.onCall(1).resolves("11f");
+
+      await vscode.commands.executeCommand("cyphile.cypher");
+      await delay(DELAY);
+
+      assert.equal(errorMessageDialog.calledOnce, true);
+      const message = errorMessageDialog.args[0][0];
+      assert.equal(
+        message,
+        "The salt must be an integer."
+      );
+    }).timeout(TEST_TIMEOUT);
+
+    test("Encrypt - File encrypted successfully with salt", async () => {
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves("25");
+
+      const infoMessageDialog = Sinon.stub(
+        vscode.window,
+        "showInformationMessage"
+      );
+
+      await vscode.commands.executeCommand("cyphile.cypher");
+      await delay(DELAY);
+
+      assert.equal(infoMessageDialog.calledOnce, true);
+      const message = infoMessageDialog.args[0][0];
+      assert.equal(message, "Current file Encrypted");
+
+      infoMessageDialog.restore();
+    }).timeout(TEST_TIMEOUT);
   });
 
-  suite("Decrypt Test Suite", () => {
+  suite("Decrypt - Test Suite", () => {
+    const testAssetDir = path.join(
+      __dirname,
+      "..",
+      "..",
+      "src",
+      "test",
+      "assets",
+      "files",
+      "decrypt"
+    );
+
     suiteSetup(async () => {
       Sinon.reset();
-      const file = path.join(
-        __dirname,
-        "..",
-        "..",
-        "src",
-        "test",
-        "assets",
-        "files",
-        "test_decrypt_file.txt"
-      );
-      const doc = await vscode.workspace.openTextDocument(file);
-      await vscode.window.showTextDocument(doc);
     });
+
+    const generateAndOpenSampleFile = async (fileContent?: string) => {
+      const filename = "test_decrypt_file.txt";
+      const filePath = path.join(
+        testAssetDir,
+        filename
+      );
+
+      createFile(filename, fileContent ?? "989ae6efe3a2a645ae06b1daced5384bd57632c63bbe2d" +
+        "11727cf757c3b65289e7c1a120bd5bbae38c5d5a2c41c30d0de17584d274feea48371a6" +
+        "f3f430dee708f4e19abfa19724ac3f90d15acce4930e04191fa6e5a113071c2f6c618147" +
+        "15f26b005b4923dcd6fa5bcf2506786696878c414fd41", testAssetDir);
+      const doc = await vscode.workspace.openTextDocument(filePath);
+      await vscode.window.showTextDocument(doc);
+    }
+
+    const clearAndCloseSampleFile = async () => {
+      await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+      await delay(DELAY);
+      clearDirectory(testAssetDir);
+    }
 
     suiteTeardown(() => {
       Sinon.reset();
     });
 
-    test("Decypher command works", async () => {
+    test("Decrypt - Decypher command works", async () => {
+      await generateAndOpenSampleFile();
       await vscode.commands.executeCommand("cyphile.decypher");
+      await delay(DELAY);
 
       assert.equal(inputBox.calledOnce, true);
       const promptTest = inputBox.args[0][0];
       assert.equal(promptTest?.prompt, "*Required - Provide a secret to decrypt with.");
-    });
+      await clearAndCloseSampleFile();
+    }).timeout(TEST_TIMEOUT);
 
-    test("Key/password validated", async () => {
+    test("Decrypt - Secret validated", async () => {
+      await generateAndOpenSampleFile();
       inputBox.resolves("test");
 
       await vscode.commands.executeCommand("cyphile.decypher");
@@ -129,10 +198,11 @@ suite("Extension Test Suite", () => {
         "The secret should be at least 5 characters long and not blank."
       );
 
-      errorMessageDialog.restore();
+      await clearAndCloseSampleFile();
     }).timeout(TEST_TIMEOUT);
 
-    test("Wrong key/password entered", async () => {
+    test("Decrypt - Wrong secret entered", async () => {
+      await generateAndOpenSampleFile();
       inputBox.onCall(0).resolves("wrongkey");
       inputBox.onCall(1).resolves();
 
@@ -143,10 +213,11 @@ suite("Extension Test Suite", () => {
       const message = errorMessageDialog.args[0][0];
       assert.equal(message, "Unsupported state or unable to authenticate data");
 
-      errorMessageDialog.restore();
+      await clearAndCloseSampleFile();
     }).timeout(TEST_TIMEOUT);
 
-    test("File decrypted successfully", async () => {
+    test("Decrypt - File decrypted successfully", async () => {
+      await generateAndOpenSampleFile();
       const infoMessageDialog = Sinon.stub(
         vscode.window,
         "showInformationMessage"
@@ -163,10 +234,52 @@ suite("Extension Test Suite", () => {
       assert.equal(message, "Current file decrypted");
 
       infoMessageDialog.restore();
+      await clearAndCloseSampleFile();
     }).timeout(TEST_TIMEOUT);
+
+
+    test("Decrypt - Salt validated", async () => {
+      await generateAndOpenSampleFile();
+      inputBox.onCall(0).resolves("wrongkey");
+      inputBox.onCall(1).resolves("F5");
+
+      await vscode.commands.executeCommand("cyphile.decypher");
+      await delay(DELAY);
+
+      assert.equal(errorMessageDialog.calledOnce, true);
+      const message = errorMessageDialog.args[0][0];
+      assert.equal(message, "The salt must be an integer.");
+
+      await clearAndCloseSampleFile();
+    }).timeout(TEST_TIMEOUT);
+
+    test("Decrypt - File decrypted successfully with salt", async () => {
+      const saltedFileContent = "03146be821f1fa031196e77361ac5bf" +
+        "a8d630b0b58425241f7e71230086117bc7dba76c858aa0276c45f40" +
+        "6c8f1b4db9057553f042236c68025f5e598381cd6ab58fed4aec598d0f07";
+      await generateAndOpenSampleFile(saltedFileContent);
+      await delay(DELAY);
+
+      inputBox.onCall(0).resolves("testKey@123");
+      inputBox.onCall(1).resolves("25");
+      const infoMessageDialog = Sinon.stub(
+        vscode.window,
+        "showInformationMessage"
+      );
+
+      await vscode.commands.executeCommand("cyphile.decypher");
+      await delay(DELAY);
+
+      assert.equal(infoMessageDialog.calledOnce, true);
+      const message = infoMessageDialog.args[0][0];
+      assert.equal(message, "Current file decrypted");
+
+      infoMessageDialog.restore();
+      await clearAndCloseSampleFile();
+    }).timeout(TEST_TIMEOUT * 2);
   });
 
-  suite("Encrypt Directory Test Suite", () => {
+  suite("Encrypt Directory - Test Suite", () => {
     const testAssetDir = path.join(
       __dirname,
       "..",
@@ -191,14 +304,14 @@ suite("Extension Test Suite", () => {
       createFile("test.sql", sql, testAssetDir);
     };
 
-    test("Encrypt directory command works", async () => {
+    test("Encrypt Directory - Encrypt directory command works", async () => {
       generateFiles();
       fileDialog.resolves([{ fsPath: testAssetDir }]);
       await vscode.commands.executeCommand("cyphile.cypher-directory");
       assert.equal(fileDialog.calledOnce, true);
     });
 
-    test("Directory selected", async () => {
+    test("Encrypt Directory - Directory selected", async () => {
       fileDialog.resolves([{ fsPath: testAssetDir }]);
       await vscode.commands.executeCommand("cyphile.cypher-directory");
 
@@ -206,7 +319,7 @@ suite("Extension Test Suite", () => {
       assert.equal(inputBox.calledOnce, true);
     });
 
-    test("Key/password validated", async () => {
+    test("Encrypt Directory - Secret validated", async () => {
       generateFiles();
       inputBox.onCall(0).resolves("t21");
       inputBox.onCall(1).resolves("t21");
@@ -225,7 +338,7 @@ suite("Extension Test Suite", () => {
       );
     }).timeout(TEST_TIMEOUT);
 
-    test("Confirm dialog displayed", async () => {
+    test("Encrypt Directory - Confirm dialog displayed", async () => {
       generateFiles();
 
       const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
@@ -247,7 +360,7 @@ suite("Extension Test Suite", () => {
       infoMessage.restore();
     }).timeout(TEST_TIMEOUT);
 
-    test("File encrypted successfully", async () => {
+    test("Encrypt Directory - File encrypted successfully", async () => {
       generateFiles();
 
       const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
@@ -271,7 +384,7 @@ suite("Extension Test Suite", () => {
     }).timeout(TEST_TIMEOUT);
   });
 
-  suite("Decrypt Directory Test Suite", () => {
+  suite("Decrypt Directory - Test Suite", () => {
     const testAssetDir = path.join(
       __dirname,
       "..",
@@ -300,14 +413,14 @@ suite("Extension Test Suite", () => {
       createFile("test.sql", sql, testAssetDir);
     };
 
-    test("Decrypt directory command works", async () => {
+    test("Decrypt Directory - Decrypt directory command works", async () => {
       generateFiles();
       fileDialog.resolves([{ fsPath: testAssetDir }]);
       await vscode.commands.executeCommand("cyphile.decypher-directory");
       assert.equal(fileDialog.calledOnce, true);
     });
 
-    test("Directory selected", async () => {
+    test("Decrypt Directory - Directory selected", async () => {
       generateFiles();
       fileDialog.resolves([{ fsPath: testAssetDir }]);
       await vscode.commands.executeCommand("cyphile.decypher-directory");
@@ -316,7 +429,7 @@ suite("Extension Test Suite", () => {
       assert.equal(inputBox.calledOnce, true);
     });
 
-    test("Key/password validated", async () => {
+    test("Decrypt Directory - Secret validated", async () => {
       generateFiles();
       fileDialog.resolves([{ fsPath: testAssetDir }]);
       inputBox.onCall(0).resolves("test");
@@ -335,7 +448,7 @@ suite("Extension Test Suite", () => {
       );
     }).timeout(TEST_TIMEOUT);
 
-    test("Confirm dialog displayed", async () => {
+    test("Decrypt Directory - Confirm dialog displayed", async () => {
       generateFiles();
 
       const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
@@ -356,7 +469,7 @@ suite("Extension Test Suite", () => {
       infoMessage.restore();
     }).timeout(TEST_TIMEOUT);
 
-    test("File decrypted successfully", async () => {
+    test("Decrypt Directory - File decrypted successfully", async () => {
       generateFiles();
 
       const infoMessage = Sinon.stub(vscode.window, "showInformationMessage");
