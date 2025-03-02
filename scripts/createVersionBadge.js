@@ -8,7 +8,7 @@ const generateSvg = (value) => {
     let valueXPos = 110;
 
     return `
-<svg width="185" height="25" xmlns="http://www.w3.org/2000/svg">
+<svg width="180" height="25" xmlns="http://www.w3.org/2000/svg">
  <g>
   <title>Layer 1</title>
   <rect x="0" stroke="#000" rx="5" id="svg_1" height="25" width="90" y="0" stroke-width="0" fill="#5b5050"/>
